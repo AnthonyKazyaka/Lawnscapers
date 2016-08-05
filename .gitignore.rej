@@ -1,0 +1,7 @@
+diff a/.gitignore b/.gitignore	(rejected hunks)
+@@ -7,3 +7,4 @@
+ *.sln
+ *.userprefs
+ /.vs/RandomizedLootShooter/v14/*.suo
++.
+\ No newline at end of file
