@@ -45,6 +45,8 @@ public class GameManager : MonoBehaviour
         _instance = this;
 
         LoadGameData();
+
+        FindPuzzle();
     }
 
     private void LoadGameData()
@@ -110,5 +112,10 @@ public class GameManager : MonoBehaviour
     public void UnpauseGame()
     {
         IsPaused = false;
+    }
+
+    private void FindPuzzle()
+    {
+        CurrentPuzzle = GameObject.FindObjectOfType<Puzzle>();
     }
 }

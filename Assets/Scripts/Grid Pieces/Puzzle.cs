@@ -11,9 +11,6 @@ public class Puzzle : MonoBehaviour
 
     public List<Grass> GrassTiles { get { return GameTiles.OfType<Grass>().ToList(); } }
 
-    public int Width = 8;
-    public int Height = 8;
-
     public bool IsPuzzleComplete { get { return GrassTiles.Where(x => !x.IsMowed).Count() == 0; } }
 
     [SerializeField]
