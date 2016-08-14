@@ -9,9 +9,10 @@ GameObject:
   m_Component:
   - 4: {fileID: 489428}
   - 114: {fileID: 11452026}
+  - 114: {fileID: 11482420}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27,10 +28,12 @@ GameObject:
   - 33: {fileID: 3311722}
   - 135: {fileID: 13515712}
   - 23: {fileID: 2393142}
-  - 114: {fileID: 11420830}
+  - 114: {fileID: 11498120}
+  - 114: {fileID: 11454468}
+  - 114: {fileID: 11433518}
   m_Layer: 0
   m_Name: Mower
-  m_TagString: Untagged
+  m_TagString: LawnMower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,20 +98,20 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100560}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &11420830
+--- !u!114 &11433518
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100560}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f848607274df07c40bd0575a3f8ddb87, type: 3}
+  m_Script: {fileID: 11500000, guid: b107ea0c25f38ec46891a744c832c3cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsMoving: 0
-  MowerRadius: 1
-  _speed: 20
+  MowerRadius: 0.5
+  _speed: 5
 --- !u!114 &11452026
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -120,7 +123,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68942aaabe14e344c8469a6988c6ea00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _equippedMower: {fileID: 0}
+  _equippedMower: {fileID: 11498120}
+--- !u!114 &11454468
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100560}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57e329d8c3abdf40896bfbed79b9599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsMoving: 0
+  MowerRadius: 0.5
+  _speed: 5
+--- !u!114 &11482420
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94bacf2c7b79177409cec120cde40044, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentMowerType: 0
+  _reelKey: 49
+  _pushKey: 50
+  _ridingKey: 51
+--- !u!114 &11498120
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaa46c9c2bf562141978cf3600915861, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsMoving: 0
+  MowerRadius: 0.5
+  _speed: 5
 --- !u!135 &13515712
 SphereCollider:
   m_ObjectHideFlags: 1

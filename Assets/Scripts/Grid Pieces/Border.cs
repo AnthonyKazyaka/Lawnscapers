@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Border : MonoBehaviour {
+public class Border : Tile {
 
 	// Use this for initialization
 	void Start () {

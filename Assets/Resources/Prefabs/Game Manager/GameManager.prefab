@@ -40,6 +40,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4dc29e2ea609744c8ddbadd1ac30915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isPaused: 0
+  _isReelUnlocked: 1
+  _isPushUnlocked: 1
+  _isRidingUnlocked: 1
   _currentPuzzle: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:

@@ -17,13 +17,15 @@ public class PuzzleGeneratorEditor : Editor
 	public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        //PuzzleGenerator generator = (PuzzleGenerator) target;
+        PuzzleGenerator generator = (PuzzleGenerator) target;
 
-        EditorGUILayout.IntSlider(Width, 0, 20, new GUIContent("Width"));
-        EditorGUILayout.IntSlider(Height, 0, 20, new GUIContent("Height"));
+        EditorGUILayout.IntSlider(Width, 2, 20, new GUIContent("Width"));
+        EditorGUILayout.IntSlider(Height, 2, 20, new GUIContent("Height"));
 
-        //generator.
-        //GUILayout.Toolbar()
+        if (generator.HaveDimensionsChanged())
+        {
+            generator.GeneratePuzzle();
+        }
 
         serializedObject.ApplyModifiedProperties();
     }

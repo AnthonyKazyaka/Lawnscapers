@@ -4,7 +4,7 @@ using System.Collections;
 
 public class PuzzleGeneratorMenuOptions : EditorWindow
 {
-    [MenuItem("Puzzle Generator/Test")]
+    [MenuItem("Puzzle Generator/Generate a new puzzle")]
     private static void MenuCreatePuzzle()
     {
         GameObject newObject = new GameObject("Test Tiles");
