@@ -7,3 +7,4 @@ Temp
 *.sln
 *.userprefs
 /.vs/RandomizedLootShooter/v14/*.suo
+*.suo
