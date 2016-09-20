@@ -29,9 +29,20 @@ public class Grass : Tile
         }
     }
 
-    public void Mow()
+    public virtual void Mow()
     {
-        gameObject.GetComponent<Renderer>().material.color = ShortColor;
-        IsMowed = true;
+        if (!IsMowed)
+        {
+            gameObject.GetComponent<Renderer>().material.color = ShortColor;
+            IsMowed = true;
+
+            StatsTracker.GrassTilesMowed++;
+        }
+    }
+
+    public override void Reset()
+    {
+        gameObject.GetComponent<Renderer>().material.color = TallColor;
+        IsMowed = false;
     }
 }

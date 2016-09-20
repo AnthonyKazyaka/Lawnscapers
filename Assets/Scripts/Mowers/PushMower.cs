@@ -5,7 +5,7 @@ using System.Linq;
 public class PushMower : LawnMower
 {
 
-    public override void MoveMower(float horizontal, float vertical)
+    public override bool MoveMower(float horizontal, float vertical)
     {
         RaycastHit hitInfo;
         Vector3 directionVector = Vector3.zero;
@@ -35,8 +35,11 @@ public class PushMower : LawnMower
                 if (!IsMoving)
                 {
                     StartCoroutine(MoveToPosition(targetPosition));
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 }

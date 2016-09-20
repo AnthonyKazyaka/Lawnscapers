@@ -13,10 +13,10 @@ public class PuzzleGenerator : MonoBehaviour
 
     public string GeneratedName = "Puzzle Tiles";
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    void Awake()
+    {
+        SetDimensionsEqual();
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -29,6 +29,8 @@ public class PuzzleGenerator : MonoBehaviour
 
     public void GeneratePuzzle()
     {
+        Debug.Log("Regenerating puzzle");
+        
         _width = Width;
         _height = Height;
 
@@ -65,9 +67,6 @@ public class PuzzleGenerator : MonoBehaviour
                     borderPosition.y += direction * (grassPrefab.transform.localScale.y / 2.0f + borderPrefab.transform.localScale.x / 2.0f);
                     borderPosition.z = -0.5f;
 
-                    Debug.Log("x: " + i + "   y: " + j);
-                    Debug.Log("Border offset: " + direction * (grassPrefab.transform.localScale.x / 2.0f + borderPrefab.transform.localScale.x / 2.0f));
-
                     GenerateTilePrefab(borderPrefab, borderPosition, Quaternion.AngleAxis(90.0f, Vector3.forward));
                 }
 
@@ -97,6 +96,12 @@ public class PuzzleGenerator : MonoBehaviour
         tile.transform.SetParent(GameObject.Find(GeneratedName).transform);
 
         return tile;
+    }
+
+    public void SetDimensionsEqual()
+    {
+        Height = _height;
+        Width = _width;
     }
 
 }

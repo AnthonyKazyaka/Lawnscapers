@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class MovingObstacle : MonoBehaviour
+public abstract class MovingObstacle : Obstacle
 {
     [SerializeField]
     protected Transform _startTransform;
@@ -24,6 +24,7 @@ public abstract class MovingObstacle : MonoBehaviour
     protected float _timeLeftWaitingAtEndPoint;
     protected int _direction = 1;
 
+
     // Use this for initialization
     void Start ()
     {
@@ -33,28 +34,40 @@ public abstract class MovingObstacle : MonoBehaviour
 	// Update is called once per frame
 	protected virtual void FixedUpdate ()
     {
-        if(!IsCurrentlyAtEndPoint)
+        if (!GameManager.Instance.IsPaused)
         {
-            Move();
-        }
-        if (LoopMovement)
-        { 
-            if (IsCurrentlyAtEndPoint && _timeLeftWaitingAtEndPoint > 0.0f)
+            if (!IsCurrentlyAtEndPoint)
             {
-                _timeLeftWaitingAtEndPoint -= Time.deltaTime;
-
-                if (_timeLeftWaitingAtEndPoint <= 0)
-                {
-                    IsCurrentlyAtEndPoint = false;
-                }
+                Move();
             }
-            else
+            if (LoopMovement)
             {
-                _timeLeftWaitingAtEndPoint = WaitTimeAtEndPoints;
+                if (IsCurrentlyAtEndPoint && _timeLeftWaitingAtEndPoint > 0.0f)
+                {
+                    _timeLeftWaitingAtEndPoint -= Time.deltaTime;
+
+                    if (_timeLeftWaitingAtEndPoint <= 0)
+                    {
+                        IsCurrentlyAtEndPoint = false;
+                    }
+                }
+                else
+                {
+                    _timeLeftWaitingAtEndPoint = WaitTimeAtEndPoints;
+                }
             }
         }
 	}
 
     public abstract void Move();
+
+    public override void Reset()
+    {
+        gameObject.transform.position = StartTransform.position;
+        IsCurrentlyAtEndPoint = false;
+        _direction = 1;
+        _timeLeftWaitingAtEndPoint = 0.0f;
+        base.Reset();
+    }
 
 }

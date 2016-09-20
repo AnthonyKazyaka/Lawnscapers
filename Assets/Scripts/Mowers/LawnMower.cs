@@ -18,12 +18,17 @@ public class LawnMower : MonoBehaviour
 	protected void Start ()
     {
         previousPosition = gameObject.transform.position;
+        gameObject.GetComponent<Rigidbody>().WakeUp();
     }
 	
 	// Update is called once per frame
 	protected void Update ()
     {
-        
+        // Collision not detected unless rigidbody is awake
+        if (gameObject.GetComponent<Rigidbody>().IsSleeping())
+        {
+            gameObject.GetComponent<Rigidbody>().WakeUp();
+        }
     }
 
     protected void LateUpdate()
@@ -31,7 +36,16 @@ public class LawnMower : MonoBehaviour
         previousPosition = gameObject.transform.position;
     }
 
-    public virtual void MoveMower(float horizontal, float vertical)
+    public void Move(float horizontal, float vertical)
+    {
+        bool takeAction = MoveMower(horizontal, vertical);
+        if (takeAction)
+        {
+            GameManager.Instance.CurrentPuzzle.ActionsTaken++;
+        }
+    }
+
+    public virtual bool MoveMower(float horizontal, float vertical)
     {
         var directionVector = Vector3.zero;
         if (System.Math.Abs(horizontal) > 0)
@@ -65,9 +79,11 @@ public class LawnMower : MonoBehaviour
                 if (!IsMoving)
                 {
                     StartCoroutine(MoveToPosition(targetPosition));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     protected virtual IEnumerator MoveToPosition(Vector3 targetPosition)
@@ -84,7 +100,7 @@ public class LawnMower : MonoBehaviour
             }
 
             Vector3 newPosition = Vector3.Lerp(gameObject.transform.position, targetPosition, Speed * Time.deltaTime);
-            gameObject.transform.position = newPosition;
+            gameObject.GetComponent<Rigidbody>().MovePosition(newPosition);
 
             CheckForGrassBelowMowerFromAbove();
             CheckForGrassBetweenCurrentAndPreviousPosition();
@@ -92,7 +108,8 @@ public class LawnMower : MonoBehaviour
             yield return null;
         }
 
-        gameObject.transform.position = targetPosition;
+        gameObject.GetComponent<Rigidbody>().MovePosition(targetPosition);
+
         IsMoving = false;
     }
 

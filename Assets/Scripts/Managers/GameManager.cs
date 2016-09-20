@@ -35,6 +35,20 @@ public class GameManager : MonoBehaviour
     private Puzzle _currentPuzzle;
     public Puzzle CurrentPuzzle { get { return _currentPuzzle; } set { _currentPuzzle = value; } }
 
+    [SerializeField]
+    private PlayerController _playerController;
+    public PlayerController PlayerController
+    {
+        get
+        {
+            if (_playerController == null) {
+                _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+            }
+            return _playerController;
+        }
+    }
+
+
     void Awake()
     {
         if(Instance != null && Instance != this)
@@ -95,12 +109,14 @@ public class GameManager : MonoBehaviour
     }
 
 	// Use this for initialization
-	void Start () {
-	
+	void Start ()
+    {
+        StatsTracker.LoadGameStats();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 	
 	}
 
