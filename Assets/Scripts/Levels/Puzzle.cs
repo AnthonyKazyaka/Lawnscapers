@@ -17,6 +17,10 @@ public class Puzzle : MonoBehaviour
     public bool IsPuzzleComplete { get { return GrassTiles.Where(x => !x.IsMowed).Count() == 0; } }
 
     [SerializeField]
+    private Transform _playerStartTransform;
+    public Transform PlayerStartTransform { get { return _playerStartTransform; } private set { _playerStartTransform = value; } }
+
+    [SerializeField]
     private int _actionsTaken = 0;
     public int ActionsTaken { get { return _actionsTaken; } set { _actionsTaken = value; } }
 
@@ -62,6 +66,11 @@ public class Puzzle : MonoBehaviour
         else
         {
             HasBeenCompletedPreviously = false;
+        }
+
+        if(PlayerStartTransform == null)
+        {
+            PlayerStartTransform = this.transform;
         }
     }
 
@@ -152,11 +161,30 @@ public class Puzzle : MonoBehaviour
         GrassTiles.ForEach(x => x.Reset());
         GameObject.FindObjectsOfType<Obstacle>().ToList().ForEach(x => x.Reset());
 
+        PlayerController playerController = GameManager.Instance.PlayerController;
+
+        playerController.Player.EquippedMower.Reset();
+        GameManager.MowerTypes mowerType;
+
+        if (IsReelMowerAllowed)
+        {
+            mowerType = GameManager.MowerTypes.Reel;
+        }
+        else if(IsPushMowerAllowed)
+        {
+            mowerType = GameManager.MowerTypes.Push;
+        }
+        else
+        {
+            mowerType = GameManager.MowerTypes.Riding;
+        }
+
+        playerController.SetMowerType(mowerType);
+        playerController.Player.EquippedMower.transform.position = PlayerStartTransform.position;
+
         _completionRecorded = false;
         Score = 0;
         ActionsTaken = 0;
-
-        Debug.Log("Resetting puzzle");
     }
 
 }

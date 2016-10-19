@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
 
     private Player _player;
+    public Player Player { get { return _player; } private set { _player = value; } }
 
     [SerializeField]
     private GameManager.MowerTypes _currentMowerType = GameManager.MowerTypes.Reel;
@@ -22,11 +23,13 @@ public class PlayerController : MonoBehaviour
     private KeyCode _ridingKey = KeyCode.Alpha3;
     public KeyCode RidingKey { get { return _ridingKey; } }
 
+    private GameManager.MowerTypes _mowerTypeToSwitchTo = GameManager.MowerTypes.Reel;
+
 
     // Use this for initialization
     void Start ()
     {
-        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     // Update is called once per frame
@@ -50,26 +53,30 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            if (!_player.EquippedMower.IsMoving)
+            if (!Player.EquippedMower.IsMoving)
             {
-                if (System.Math.Abs(Input.GetAxis("Horizontal")) > 0 || System.Math.Abs(Input.GetAxis("Vertical")) > 0)
+                if(_mowerTypeToSwitchTo != _currentMowerType)
                 {
-                    _player.EquippedMower.MoveMower(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-                    Debug.Log(_player.EquippedMower.GetType().ToString());
+                    SwitchEquippedMower(_mowerTypeToSwitchTo);
                 }
 
-                if (Input.GetKeyDown(ReelKey) && GameManager.Instance.IsReelUnlocked && GameManager.Instance.CurrentPuzzle.IsReelMowerAllowed)
+                if (System.Math.Abs(Input.GetAxis("Horizontal")) > 0 || System.Math.Abs(Input.GetAxis("Vertical")) > 0)
                 {
-                    SwitchEquippedMower(GameManager.MowerTypes.Reel);
+                    Player.EquippedMower.Move(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
                 }
-                else if (Input.GetKeyDown(PushKey) && GameManager.Instance.IsPushUnlocked && GameManager.Instance.CurrentPuzzle.IsPushMowerAllowed)
-                {
-                    SwitchEquippedMower(GameManager.MowerTypes.Push);
-                }
-                else if (Input.GetKeyDown(RidingKey) && GameManager.Instance.IsRidingUnlocked && GameManager.Instance.CurrentPuzzle.IsRidingMowerAllowed)
-                {
-                    SwitchEquippedMower(GameManager.MowerTypes.Riding);
-                }
+            }
+
+            if (Input.GetKeyDown(ReelKey) && GameManager.Instance.IsReelUnlocked && GameManager.Instance.CurrentPuzzle.IsReelMowerAllowed)
+            {
+                _mowerTypeToSwitchTo = GameManager.MowerTypes.Reel;
+            }
+            else if (Input.GetKeyDown(PushKey) && GameManager.Instance.IsPushUnlocked && GameManager.Instance.CurrentPuzzle.IsPushMowerAllowed)
+            {
+                _mowerTypeToSwitchTo = GameManager.MowerTypes.Push;
+            }
+            else if (Input.GetKeyDown(RidingKey) && GameManager.Instance.IsRidingUnlocked && GameManager.Instance.CurrentPuzzle.IsRidingMowerAllowed)
+            {
+                _mowerTypeToSwitchTo = GameManager.MowerTypes.Riding;
             }
         }
 	}
@@ -78,9 +85,9 @@ public class PlayerController : MonoBehaviour
     /// Switches the player's equipped mower.
     /// </summary>
     /// <returns>Returns true if mower type changed, false if mower type already equipped.</returns>
-    private bool SwitchEquippedMower(GameManager.MowerTypes mowerType)
+    private bool SwitchEquippedMower(GameManager.MowerTypes mowerType, bool forceSwitch = false)
     {
-        if(_currentMowerType == mowerType)
+        if(!forceSwitch && _currentMowerType == mowerType)
         {
             return false;
         }
@@ -127,17 +134,32 @@ public class PlayerController : MonoBehaviour
         switch (mowerToDisable)
         {
             case GameManager.MowerTypes.Reel:
-                _player.EquippedMower.GetComponent<ReelMower>().enabled = false;
+                Player.EquippedMower.GetComponent<ReelMower>().enabled = false;
                 break;
             case GameManager.MowerTypes.Push:
-                _player.EquippedMower.GetComponent<PushMower>().enabled = false;
+                Player.EquippedMower.GetComponent<PushMower>().enabled = false;
                 break;
             case GameManager.MowerTypes.Riding:
-                _player.EquippedMower.GetComponent<RidingMower>().enabled = false;
+                Player.EquippedMower.GetComponent<RidingMower>().enabled = false;
                 break;
             default:
                 break;
         }
+    }
+
+    private void DisableAllMowerTypes()
+    {
+        Player.EquippedMower.GetComponent<ReelMower>().enabled = false;
+
+        foreach (var mower in Player.EquippedMower.GetComponents<PushMower>())
+        {
+            if (mower.GetType() == typeof(PushMower))
+            {
+                mower.enabled = false;
+            }
+        }
+
+        Player.EquippedMower.GetComponent<RidingMower>().enabled = false;
     }
 
     private void EnableMowerType(GameManager.MowerTypes mowerToEnable)
@@ -146,12 +168,12 @@ public class PlayerController : MonoBehaviour
         switch (mowerToEnable)
         {
             case GameManager.MowerTypes.Reel:
-                _player.EquippedMower.GetComponent<ReelMower>().enabled = true;
-                _player.EquippedMower = mowerGameObject.GetComponent<ReelMower>();
+                Player.EquippedMower.GetComponent<ReelMower>().enabled = true;
+                Player.EquippedMower = mowerGameObject.GetComponent<ReelMower>();
                 break;
             case GameManager.MowerTypes.Push:
-                PushMower pushMowerComponent = _player.EquippedMower.GetComponent<PushMower>();
-                foreach(var mower in _player.EquippedMower.GetComponents<PushMower>())
+                PushMower pushMowerComponent = Player.EquippedMower.GetComponent<PushMower>();
+                foreach(var mower in Player.EquippedMower.GetComponents<PushMower>())
                 {
                     if(mower.GetType() == typeof(PushMower))
                     {
@@ -160,15 +182,22 @@ public class PlayerController : MonoBehaviour
                 }
 
                 pushMowerComponent.enabled= true;
-                _player.EquippedMower = pushMowerComponent;
+                Player.EquippedMower = pushMowerComponent;
                 break;
             case GameManager.MowerTypes.Riding:
-                _player.EquippedMower.GetComponent<RidingMower>().enabled = true;
-                _player.EquippedMower = mowerGameObject.GetComponent<RidingMower>();
+                Player.EquippedMower.GetComponent<RidingMower>().enabled = true;
+                Player.EquippedMower = mowerGameObject.GetComponent<RidingMower>();
                 break;
             default:
                 break;
         }
         _currentMowerType = mowerToEnable;
+    }
+
+    public void SetMowerType(GameManager.MowerTypes type)
+    {
+        DisableAllMowerTypes();
+        SwitchEquippedMower(type, true);
+        _mowerTypeToSwitchTo = type;
     }
 }

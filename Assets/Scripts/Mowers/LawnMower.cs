@@ -14,6 +14,7 @@ public class LawnMower : MonoBehaviour
 
     protected Vector3 previousPosition = new Vector3();
 
+
 	// Use this for initialization
 	protected void Start ()
     {
@@ -65,6 +66,8 @@ public class LawnMower : MonoBehaviour
 
         RaycastHit hitInfo;
         bool hitSomething = Physics.Raycast(gameObject.transform.position, directionVector, out hitInfo, directionVector.magnitude);
+        Debug.DrawRay(gameObject.transform.position, directionVector, Color.red, 2.0f);
+
         if (!hitSomething)
         {
             var closestGrassTile = GameObject.FindObjectsOfType<Grass>()
@@ -139,29 +142,34 @@ public class LawnMower : MonoBehaviour
 
     protected void CheckForGrassBetweenCurrentAndPreviousPosition()
     {
-        if(!GameManager.Instance.IsPaused)
+        if (!GameManager.Instance.IsPaused)
         {
+            Vector3 offsetPreviousPosition = previousPosition;
+            offsetPreviousPosition.z = 0.0f;    // All tiles have a collider going through the plane z = 0
+            Vector3 offsetCurrentPosition = gameObject.transform.position;
+            offsetCurrentPosition.z = 0.0f;
 
-        }
-        Vector3 offsetPreviousPosition = previousPosition;
-        offsetPreviousPosition.z = 0.0f;    // All tiles have a collider going through the plane z = 0
-        Vector3 offsetCurrentPosition = gameObject.transform.position;
-        offsetCurrentPosition.z = 0.0f;
+            Vector3 raycastVector = offsetPreviousPosition - offsetCurrentPosition;
 
-        Vector3 raycastVector = offsetPreviousPosition - offsetCurrentPosition;
+            RaycastHit[] colliderHits = Physics.RaycastAll(offsetCurrentPosition, raycastVector, raycastVector.magnitude);
+            //Debug.DrawRay(offsetCurrentPosition, raycastVector, Color.red, 1.0f, false);
 
-        RaycastHit[] colliderHits = Physics.RaycastAll(offsetCurrentPosition, raycastVector, raycastVector.magnitude);
-        Debug.DrawRay(offsetCurrentPosition, raycastVector, Color.red, 1.0f, false);
+            var grassTilesHit = colliderHits.Where(x => x.collider.gameObject.GetComponent<Grass>() != null).Select(x => x.collider.gameObject.GetComponent<Grass>());
 
-        var grassTilesHit = colliderHits.Where(x => x.collider.gameObject.GetComponent<Grass>() != null).Select(x => x.collider.gameObject.GetComponent<Grass>());
-
-        if (grassTilesHit.Count() > 0)
-        {
-            foreach(Grass tile in grassTilesHit)
+            if (grassTilesHit.Count() > 0)
             {
-                tile.Mow();
+                foreach (Grass tile in grassTilesHit)
+                {
+                    tile.Mow();
+                }
             }
         }
+    }
+
+    public void Reset()
+    {
+        StopAllCoroutines();
+        IsMoving = false;
     }
 
 }
