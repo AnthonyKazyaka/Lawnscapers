@@ -25,6 +25,13 @@ public class PlayerController : MonoBehaviour
 
     private GameManager.MowerTypes _mowerTypeToSwitchTo = GameManager.MowerTypes.Reel;
 
+    [SerializeField]
+    private float _minimumTouchVelocity = 200.0f;
+    public float MinimumTouchVelocity { get { return _minimumTouchVelocity; } }
+
+    private Vector2 _previousMousePosition;
+    private Vector2 _currentMousePosition { get { return new Vector2(Input.mousePosition.x, Input.mousePosition.y); } }
+
 
     // Use this for initialization
     void Start ()
@@ -52,6 +59,31 @@ public class PlayerController : MonoBehaviour
                 // Don't accept any more input this update
                 return;
             }
+            bool touchInputReceived = Input.touchCount > 0;
+            float touchVelocity = 0.0f;
+
+            Vector2 gestureMovementDirection = new Vector2(0, 0);
+
+            if (touchInputReceived && Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
+                Touch touch = Input.GetTouch(0);
+                var touchDelta = touch.deltaPosition;
+                touchVelocity = Mathf.Abs((touch.deltaPosition / touch.deltaTime).magnitude);
+
+                gestureMovementDirection = (touchVelocity > MinimumTouchVelocity) ? ((Mathf.Abs(touchDelta.x) > Mathf.Abs(touchDelta.y)) ? gestureMovementDirection = new Vector2(touchDelta.x, 0).normalized : gestureMovementDirection = new Vector2(0, touchDelta.y).normalized) : gestureMovementDirection;
+            }
+
+            if (Input.mousePresent && Input.GetMouseButton(0))
+            {
+                var mousePositionDelta = _currentMousePosition - _previousMousePosition;
+                touchVelocity = Mathf.Abs((mousePositionDelta / Time.deltaTime).magnitude);
+
+                gestureMovementDirection = (touchVelocity > MinimumTouchVelocity) ? ((Mathf.Abs(mousePositionDelta.x) > Mathf.Abs(mousePositionDelta.y)) ? gestureMovementDirection = new Vector2(mousePositionDelta.x, 0).normalized : gestureMovementDirection = new Vector2(0, mousePositionDelta.y).normalized) : gestureMovementDirection;
+                Debug.Log("Velocity: " + touchVelocity);
+                Debug.Log("Delta: " + mousePositionDelta);
+            }
+
+
 
             if (!Player.EquippedMower.IsMoving)
             {
@@ -60,7 +92,11 @@ public class PlayerController : MonoBehaviour
                     SwitchEquippedMower(_mowerTypeToSwitchTo);
                 }
 
-                if (System.Math.Abs(Input.GetAxis("Horizontal")) > 0 || System.Math.Abs(Input.GetAxis("Vertical")) > 0)
+                if (gestureMovementDirection.magnitude > 0)
+                {
+                    Player.EquippedMower.Move(gestureMovementDirection.x, gestureMovementDirection.y);
+                }
+                else if (System.Math.Abs(Input.GetAxis("Horizontal")) > 0 || System.Math.Abs(Input.GetAxis("Vertical")) > 0)
                 {
                     Player.EquippedMower.Move(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
                 }
@@ -78,6 +114,8 @@ public class PlayerController : MonoBehaviour
             {
                 _mowerTypeToSwitchTo = GameManager.MowerTypes.Riding;
             }
+
+            _previousMousePosition = _currentMousePosition;
         }
 	}
 

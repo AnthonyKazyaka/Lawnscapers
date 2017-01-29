@@ -25,7 +25,7 @@ public class Grass : Tile
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Mow();
+            //Mow();
         }
     }
 

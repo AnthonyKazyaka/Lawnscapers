@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using GooglePlayGames;
+using UnityEngine.SocialPlatforms;
+using GooglePlayGames.BasicApi;
+using System.Threading;
+using UnityEngine.UI;
 
 public class Puzzle : MonoBehaviour
 {
@@ -54,6 +59,7 @@ public class Puzzle : MonoBehaviour
     void Start()
     {
         //PlayerPrefs.DeleteAll();
+
         if (string.IsNullOrEmpty(PuzzleName))
         {
             PuzzleName = SceneManager.GetActiveScene().name;
@@ -140,7 +146,63 @@ public class Puzzle : MonoBehaviour
         CalculateScore();
         StatsTracker.SaveGameStats();
 
+        if(StatsTracker.GrassTilesMowed < 1000)
+        {
+            if (Social.localUser.authenticated)
+            {
+                Social.ReportProgress(GPGSIds.achievement_find_yourself_a_hobby, 0.0f, (bool success) =>
+                {
+                    if (!success)
+                    {
+                        Reset();
+                    }
+                });
+
+                PlayGamesPlatform.Instance.IncrementAchievement(GPGSIds.achievement_find_yourself_a_hobby, GrassTiles.Count, (bool success) =>
+                {
+                    Debug.Log("Did it increment? " + ((success) ? "Yes" : "No"));
+                    if (!success)
+                    {
+                        var text = GameObject.Find("LogText").GetComponent<Text>();
+                        text.text = "Didn't work, trying to fully unlock the achievement.";
+                        text.enabled = true;
+
+                        Social.ReportProgress(GPGSIds.achievement_find_yourself_a_hobby, 100.0f, (bool success2) =>
+                        {
+                            if (!success2)
+                            {
+                                ReturnToLevelSelect(2.0f);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
         _completionRecorded = true;
+
+        ReturnToMainMenu(5.0f);
+    }
+
+    public void ReturnToLevelSelect(float secondsToWait)
+    {
+        StartCoroutine(ReturnToScene("Level Select", secondsToWait));
+    }
+
+    public void ReturnToMainMenu(float secondsToWait)
+    {
+        StartCoroutine(ReturnToScene("Main Menu", secondsToWait));
+    }
+
+    public IEnumerator ReturnToScene(string sceneName, float secondsToWait)
+    {
+        float beginTime = Time.time;
+        while (Time.time < beginTime + secondsToWait)
+        {
+            yield return null;
+        }
+
+        SceneManager.LoadScene(sceneName);
     }
 
     private void CalculateScore()
