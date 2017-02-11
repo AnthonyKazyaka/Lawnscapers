@@ -3,16 +3,15 @@ using System.Collections;
 
 public class Grass : Tile
 {
-
-    public Color TallColor = Color.green;
-    public Color ShortColor = Color.yellow;
+    public Texture2D TallTexture;
+    public Texture2D ShortTexture;
 
     public bool IsMowed = false;
 
     // Use this for initialization
     void Start()
     {
-        gameObject.GetComponent<Renderer>().material.color = TallColor;
+        gameObject.GetComponent<Renderer>().material.mainTexture = TallTexture;
     }
 
     // Update is called once per frame
@@ -33,7 +32,7 @@ public class Grass : Tile
     {
         if (!IsMowed)
         {
-            gameObject.GetComponent<Renderer>().material.color = ShortColor;
+            gameObject.GetComponent<Renderer>().material.mainTexture = ShortTexture;
             IsMowed = true;
 
             StatsTracker.GrassTilesMowed++;
@@ -42,7 +41,7 @@ public class Grass : Tile
 
     public override void Reset()
     {
-        gameObject.GetComponent<Renderer>().material.color = TallColor;
+        gameObject.GetComponent<Renderer>().material.mainTexture = TallTexture;
         IsMowed = false;
     }
 }

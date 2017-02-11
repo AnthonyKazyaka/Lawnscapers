@@ -12,6 +12,10 @@ public class LawnMower : MonoBehaviour
     private float _speed = 5.0f;
     public float Speed { get { return _speed; } set { _speed = value; } }
 
+    [SerializeField]
+    private float _acceleration = 20.0f;
+    public float Acceleration { get { return _acceleration; } set { _acceleration = value; } }
+
     protected Vector3 previousPosition = new Vector3();
 
 
@@ -65,7 +69,7 @@ public class LawnMower : MonoBehaviour
         //Debug.Log("New position: " + newPosition);
 
         RaycastHit hitInfo;
-        bool hitSomething = Physics.Raycast(gameObject.transform.position, directionVector, out hitInfo, directionVector.magnitude);
+        var hitSomething = Physics.Raycast(gameObject.transform.position, directionVector, out hitInfo, directionVector.magnitude);
         Debug.DrawRay(gameObject.transform.position, directionVector, Color.red, 2.0f);
 
         if (!hitSomething)
@@ -76,8 +80,8 @@ public class LawnMower : MonoBehaviour
 
             if (closestGrassTile != null)
             {
-                Vector3 closestGrassPosition = closestGrassTile.transform.position;
-                Vector3 targetPosition = closestGrassPosition - new Vector3(0, 0, .5f * (closestGrassTile.transform.localScale.z + gameObject.transform.localScale.z));
+                var closestGrassPosition = closestGrassTile.transform.position;
+                var targetPosition = closestGrassPosition - new Vector3(0, 0, .5f * (closestGrassTile.transform.localScale.z + gameObject.transform.localScale.z));
 
                 if (!IsMoving)
                 {
@@ -95,14 +99,37 @@ public class LawnMower : MonoBehaviour
         CheckForGrassBelowMowerFromAbove();
         CheckForGrassBetweenCurrentAndPreviousPosition();
 
-        while (Vector3.Distance(gameObject.transform.position, targetPosition) > 0.01)
+        var currentSpeed = 0.0f;
+
+        var initialDirection = (targetPosition - gameObject.transform.position).normalized;
+        var initialPosition = gameObject.transform.position;
+
+        while (Vector3.Distance(gameObject.transform.position, targetPosition) > 0.01 && (targetPosition - gameObject.transform.position).normalized == initialDirection)
         {
             while(GameManager.Instance.IsPaused)
             {
                 yield return null;
             }
+            
+            if (currentSpeed < Speed)
+            {
+                currentSpeed += Acceleration * Time.deltaTime;
+            }
+            else if((targetPosition - gameObject.transform.position).magnitude <= MowerRadius)
+            {
+                currentSpeed -= Acceleration * Time.deltaTime;
+            }
+            else
+            {
+                currentSpeed = Speed;
+            }
 
-            Vector3 newPosition = Vector3.Lerp(gameObject.transform.position, targetPosition, Speed * Time.deltaTime);
+            var newPosition = (targetPosition - gameObject.transform.position).normalized * currentSpeed * Time.deltaTime + gameObject.transform.position;
+            if((newPosition - initialPosition).magnitude >= (targetPosition - initialPosition).magnitude)
+            {
+                newPosition = targetPosition;
+            }
+            
             gameObject.GetComponent<Rigidbody>().MovePosition(newPosition);
 
             CheckForGrassBelowMowerFromAbove();
@@ -121,15 +148,15 @@ public class LawnMower : MonoBehaviour
         if (!GameManager.Instance.IsPaused)
         {
             RaycastHit hitInfoFromAbove;
-            bool hitSomething = Physics.Raycast(gameObject.transform.position, new Vector3(0, 0, 1), out hitInfoFromAbove);
+            var hitSomething = Physics.Raycast(gameObject.transform.position, new Vector3(0, 0, 1), out hitInfoFromAbove);
 
             if (hitSomething)
             {
-                Grass grassTile = hitInfoFromAbove.collider.gameObject.GetComponent<Grass>();
+                var grassTile = hitInfoFromAbove.collider.gameObject.GetComponent<Grass>();
                 if (grassTile != null && !grassTile.IsMowed)
                 {
-                    Vector2 grassXY = new Vector2(grassTile.transform.position.x, grassTile.transform.position.y);
-                    Vector2 hitpointXY = new Vector2(hitInfoFromAbove.point.x, hitInfoFromAbove.point.y);
+                    var grassXY = new Vector2(grassTile.transform.position.x, grassTile.transform.position.y);
+                    var hitpointXY = new Vector2(hitInfoFromAbove.point.x, hitInfoFromAbove.point.y);
 
                     if (Vector2.Distance(grassXY, hitpointXY) <= MowerRadius)
                     {
@@ -144,12 +171,12 @@ public class LawnMower : MonoBehaviour
     {
         if (!GameManager.Instance.IsPaused)
         {
-            Vector3 offsetPreviousPosition = previousPosition;
+            var offsetPreviousPosition = previousPosition;
             offsetPreviousPosition.z = 0.0f;    // All tiles have a collider going through the plane z = 0
-            Vector3 offsetCurrentPosition = gameObject.transform.position;
+            var offsetCurrentPosition = gameObject.transform.position;
             offsetCurrentPosition.z = 0.0f;
 
-            Vector3 raycastVector = offsetPreviousPosition - offsetCurrentPosition;
+            var raycastVector = offsetPreviousPosition - offsetCurrentPosition;
 
             RaycastHit[] colliderHits = Physics.RaycastAll(offsetCurrentPosition, raycastVector, raycastVector.magnitude);
             //Debug.DrawRay(offsetCurrentPosition, raycastVector, Color.red, 1.0f, false);
