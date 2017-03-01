@@ -8,3 +8,4 @@ Temp
 *.userprefs
 /.vs/RandomizedLootShooter/v14/*.suo
 *.suo
+Android Build/
